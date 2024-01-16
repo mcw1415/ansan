@@ -29,7 +29,12 @@ jobs:
     - name: 3. Change Execute Mode
       run: chmod +x ./gradlew
 
-    - name: 4. Install Mysql
+    - name: 4. Build with Gradle
+      uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
+      with:
+        arguments: build --info
+
+    - name: 5. Install Mysql
       uses: mirromutth/mysql-action@v1.1
       with:
         host port: 3306
@@ -39,11 +44,6 @@ jobs:
         mysql root password: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         mysql user: ${{ secrets.MYSQL_USER }}
         mysql password: ${{ secrets.MYSQL_PASSWORD }}
-
-    - name: 5. Build with Gradle
-      uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
-      with:
-        arguments: build --info
 #
 #    # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
 #    # the publishing section of your build.gradle
