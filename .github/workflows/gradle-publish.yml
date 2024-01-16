@@ -1,52 +1,46 @@
-
 name: Gradle Package
 on:
   push:
     branches: ["main"]
   pull_request:
     branches: ["main"]
-permissions:
-  contents: read
-
-
+permissions: write-all
+#  contents: write-all
 jobs:
   build:
     runs-on: ubuntu-20.04
-    permissions:
-      contents: read
-      packages: write
 
     steps:
-    - name: 1. CheckOut Source
-      uses: actions/checkout@v3
+      - name: 1. CheckOut Source
+        uses: actions/checkout@v3
 
-    - name: 2. Set up JDK 21
-      uses: actions/setup-java@v3
-      with:
-        java-version: '21'
-        distribution: 'temurin'
+      - name: 2. Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-    - name: 3. Change Execute Mode
-      run: chmod +x ./gradlew
+      - name: 3. Change Execute Mode
+        run: chmod 755 gradlew
 
-    - name: 4. Build with Gradle
-      uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
-      with:
-        arguments: build --info
+      - name: 4. Install Mysql
+        uses: mirromutth/mysql-action@v1.1
+        with:
+          host port: 3306
+          container port: 3306
+          mysql version: '8.0'
+          mysql database: 'istory'
+          mysql root password: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          mysql user: ${{ secrets.MYSQL_USER }}
+          mysql password: ${{ secrets.MYSQL_USER_PASSWORD }}
 
-    - name: 5. Install Mysql
-      uses: mirromutth/mysql-action@v1.1
-      with:
-        host port: 3306
-        container port: 3306
-        mysql version: '8.8'
-        mysql database: 'istory'
-        mysql root password: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-        mysql user: ${{ secrets.MYSQL_USER }}
-        mysql password: ${{ secrets.MYSQL_PASSWORD }}
+      - name: 4. Build with Gradle
+        uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
+        with:
+          arguments: build
+          cache-disabled: true
+          gradle-home-cache-cleanup: true
 #
-#    # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
-#    # the publishing section of your build.gradle
 #    - name: Publish to GitHub Packages
 #      uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
 #      with:
